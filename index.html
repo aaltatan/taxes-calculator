@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/public/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module" src="/src/main.js"></script>
+    <style>
+      [x-cloak] {
+        display: none;
+      }
+    </style>
+    <title>حاسبة ضريبة الشرائح</title>
+  </head>
+  <body dir="rtl" class="p-2 bg-timber-green-950 min-h-screen text-timber-green-950">
+    <div
+      x-cloak
+      x-data="calculator"
+      class="max-w-[400px] mx-auto p-4 space-y-2 rounded-lg shadow-lg bg-white"
+      x-trap="true"
+    >
+      <div class="flex items-center flex-col">
+        <span class="block size-24">
+          <img src="/public/logo.svg" alt="">
+        </span>
+        <h1 class="text-xl font-bold text-center tracking-tighter">
+          ضريبة دخل الرواتب والأجور
+        </h1>
+      </div>
+      <div>
+        <label for="salary">
+          <span
+            class="text-sm font-medium tracking-tighter mb-1 block"
+            :class="{ 'text-red-500': !salary.check() }"
+            >الراتب المقطوع</span
+          >
+          <input
+            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900"
+            :class="{ '!border-red-500 !ring-red-500': !salary.check() }"
+            type="number"
+            @input="calculate"
+            x-model="salary.value"
+            :min="salary.min"
+            step="1000"
+            placeholder="e.g. 1,000,000"
+            class="w-full"
+            id="salary"
+          />
+        </label>
+        <span
+          x-show="!salary.check()"
+          x-collapse.duration.150ms
+          class="text-red-500"
+          x-text="'يجب ان يكون الراتب المقطوع أكبر من ' + salary.min.toLocaleString()"
+        ></span>
+      </div>
+      <!--  -->
+      <div>
+        <label for="social-security" class="flex items-center gap-2">
+          <span>مشترك في التأمينات الاجتماعية</span>
+          <input
+            @change="calculate"
+            type="checkbox"
+            x-model="ss.status"
+            id="social-security"
+            class="accent-timber-green-950 outline-none focus:ring-2 focus:ring-timber-green-950"
+          />
+        </label>
+      </div>
+      <!--  -->
+      <div x-show="ss.status" x-transition x-collapse.duration.150ms>
+        <label for="social-security-salary">
+          <span
+            class="text-sm font-medium tracking-tight mb-1 block"
+            :class="{ 'text-red-500': !ss.check() }"
+            >راتب التأمينات الاجتماعية</span
+          >
+          <input
+            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900"
+            :class="{ '!border-red-500 !ring-red-500': !ss.check() }"
+            type="number"
+            x-model="ss.salary"
+            :min="ss.min"
+            @input="calculate"
+            step="1000"
+            placeholder="e.g. 750,000"
+            class="w-full"
+            id="social-security-salary"
+          />
+        </label>
+        <span
+          x-show="!ss.check()"
+          x-collapse.duration.150ms
+          class="text-red-500"
+          x-text="'يجب ان يكون راتب التأمينات الاجتماعية أكبر من ' + ss.min.toLocaleString()"
+        ></span>
+      </div>
+      <!--  -->
+      <div class="flex items-center justify-center gap-2">
+        <button
+          class="block w-full px-2 py-1 rounded-md bg-timber-green-950 hover:bg-timber-green-900 duration-75 cursor-pointer border border-timberbg-timber-green-50-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium outline-none focus:ring-1 focus:ring-timber-green-950 text-white"
+          @click="calculate"
+          :disabled="!allValid()"
+        >
+          احسب
+        </button>
+        <button
+          class="block w-full px-2 py-1 rounded-md bg-barley-corn-200 hover:bg-barley-corn-300 duration-75 cursor-pointer border border-barley-corn-300 font-medium outline-none focus:ring-1 focus:ring-barley-corn-300"
+          @click="reset"
+        >
+          تصفير
+        </button>
+      </div>
+      <!--  -->
+      <div
+        x-show="allValid()"
+        x-collapse.duration.150ms
+        x-transition
+        class="space-y-2 font-bold my-2 tracking-tight"
+      >
+        <div>
+          <span>الراتب: </span>
+          <span x-text="(salary.value - 0).toLocaleString()"></span>
+        </div>
+        <div x-show="ss.status" x-collapse.duration.150ms x-transition>
+          <span>راتب التأمينات الاجتماعية: </span>
+          <span x-text="(ss.salary - 0).toLocaleString()"></span>
+        </div>
+        <hr class="text-[#002724] h-px" />
+        <div>
+          <div x-show="ss.status" x-collapse.duration.150ms x-transition>
+            <span>اشتراك التأمينات الاجتماعية: </span>
+            <span x-text="ss.calculate().toLocaleString()"></span>
+          </div>
+          <span>الضريبة: </span>
+          <span x-text="result.toLocaleString()"></span>
+        </div>
+        <div class="border-t-4 border-timber-green-950 border-double">
+          <span>الصافي: </span>
+          <span x-text="(salary.value - result - ss.calculate()).toLocaleString()"></span>
+        </div>
+      </div>
+      <p class="text-center text-sm text-barley-corn-700 capitalize">
+        تم الانشاء بواسطة
+        <a target="_blank" class="underline text-timber-green-950" href="https://fb.com/@abdtt"
+          >عبدالله التتان</a
+        >
+      </p>
+    </div>
+  </body>
+</html>
