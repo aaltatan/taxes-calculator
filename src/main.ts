@@ -1,7 +1,7 @@
 import collapse from "@alpinejs/collapse";
 import focus from "@alpinejs/focus";
 import Alpine, { type Alpine as AlpineType } from "alpinejs";
-import { calculator } from "./data/calculator/calculator";
+import calculator from "./data/calculator";
 import "./styles.css";
 
 declare global {

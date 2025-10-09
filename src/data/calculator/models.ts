@@ -6,7 +6,7 @@ interface SocialSecurity {
   /**
    * whether is joined social security or not
    */
-  status: boolean;
+  joined: boolean;
   /**
    * social security salary
    */
@@ -19,8 +19,8 @@ interface SocialSecurity {
    * social security rate
    */
   rate: number;
-  calculate: () => number;
-  check: () => boolean;
+  deduction: number;
+  hasError: boolean;
 }
 
 interface Rounder {
@@ -40,7 +40,7 @@ interface Salary {
   value: number;
   min: number;
   brackets: Bracket[];
-  check: () => boolean;
+  hasError: boolean;
 }
 
 export interface Calculator extends Component, Magic {
@@ -57,9 +57,9 @@ export interface Calculator extends Component, Magic {
    */
   salary: Salary;
 
-  result: number;
+  tax: number;
+  hasErrors: boolean;
+  taxableSalary: number;
   reset: () => void;
-  allValid: () => boolean;
-  calculateTaxableSalary: () => number;
   calculate: () => void;
 }

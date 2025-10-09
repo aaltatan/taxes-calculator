@@ -21,22 +21,16 @@
     >
       <div class="flex items-center flex-col">
         <span class="block size-24">
-          <img src="/public/logo.svg" alt="">
+          <img src="/public/logo.svg" alt="" />
         </span>
-        <h1 class="text-xl font-bold text-center tracking-tighter">
-          ضريبة دخل الرواتب والأجور
-        </h1>
+        <h1 class="text-xl font-bold text-center tracking-tighter">ضريبة دخل الرواتب والأجور</h1>
       </div>
       <div>
-        <label for="salary">
-          <span
-            class="text-sm font-medium tracking-tighter mb-1 block"
-            :class="{ 'text-red-500': !salary.check() }"
-            >الراتب المقطوع</span
-          >
+        <label for="salary" class="[&:has(input[aria-invalid])>span]:text-red-500">
+          <span class="text-sm font-medium tracking-tighter mb-1 block">الراتب المقطوع</span>
           <input
-            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900"
-            :class="{ '!border-red-500 !ring-red-500': !salary.check() }"
+            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900 aria-[invalid]:border-red-500 aria-[invalid]:ring-red-500"
+            :aria-invalid="salary.hasError"
             type="number"
             @input="calculate"
             x-model="salary.value"
@@ -48,7 +42,7 @@
           />
         </label>
         <span
-          x-show="!salary.check()"
+          x-show="salary.hasError"
           x-collapse.duration.150ms
           class="text-red-500"
           x-text="'يجب ان يكون الراتب المقطوع أكبر من ' + salary.min.toLocaleString()"
@@ -61,23 +55,21 @@
           <input
             @change="calculate"
             type="checkbox"
-            x-model="ss.status"
+            x-model="ss.joined"
             id="social-security"
             class="accent-timber-green-950 outline-none focus:ring-2 focus:ring-timber-green-950"
           />
         </label>
       </div>
       <!--  -->
-      <div x-show="ss.status" x-transition x-collapse.duration.150ms>
-        <label for="social-security-salary">
-          <span
-            class="text-sm font-medium tracking-tight mb-1 block"
-            :class="{ 'text-red-500': !ss.check() }"
+      <div x-show="ss.joined" x-transition x-collapse.duration.150ms>
+        <label for="social-security-salary" class="[&:has(input[aria-invalid])>span]:text-red-500">
+          <span class="text-sm font-medium tracking-tight mb-1 block"
             >راتب التأمينات الاجتماعية</span
           >
           <input
-            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900"
-            :class="{ '!border-red-500 !ring-red-500': !ss.check() }"
+            class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900 aria-[invalid]:border-red-500 aria-[invalid]:ring-red-500"
+            :aria-invalid="ss.hasError"
             type="number"
             x-model="ss.salary"
             :min="ss.min"
@@ -89,7 +81,7 @@
           />
         </label>
         <span
-          x-show="!ss.check()"
+          x-show="ss.hasError"
           x-collapse.duration.150ms
           class="text-red-500"
           x-text="'يجب ان يكون راتب التأمينات الاجتماعية أكبر من ' + ss.min.toLocaleString()"
@@ -100,7 +92,7 @@
         <button
           class="block w-full px-2 py-1 rounded-md bg-timber-green-950 hover:bg-timber-green-900 duration-75 cursor-pointer border border-timberbg-timber-green-50-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium outline-none focus:ring-1 focus:ring-timber-green-950 text-white"
           @click="calculate"
-          :disabled="!allValid()"
+          :disabled="hasErrors"
         >
           احسب
         </button>
@@ -113,7 +105,7 @@
       </div>
       <!--  -->
       <div
-        x-show="allValid()"
+        x-show="!hasErrors"
         x-collapse.duration.150ms
         x-transition
         class="space-y-2 font-bold my-2 tracking-tight"
@@ -122,22 +114,22 @@
           <span>الراتب: </span>
           <span x-text="(salary.value - 0).toLocaleString()"></span>
         </div>
-        <div x-show="ss.status" x-collapse.duration.150ms x-transition>
+        <div x-show="ss.joined" x-collapse.duration.150ms x-transition>
           <span>راتب التأمينات الاجتماعية: </span>
           <span x-text="(ss.salary - 0).toLocaleString()"></span>
         </div>
         <hr class="text-[#002724] h-px" />
         <div>
-          <div x-show="ss.status" x-collapse.duration.150ms x-transition>
+          <div x-show="ss.joined" x-collapse.duration.150ms x-transition>
             <span>اشتراك التأمينات الاجتماعية: </span>
-            <span x-text="ss.calculate().toLocaleString()"></span>
+            <span x-text="ss.deduction.toLocaleString()"></span>
           </div>
           <span>الضريبة: </span>
-          <span x-text="result.toLocaleString()"></span>
+          <span x-text="tax.toLocaleString()"></span>
         </div>
         <div class="border-t-4 border-timber-green-950 border-double">
           <span>الصافي: </span>
-          <span x-text="(salary.value - result - ss.calculate()).toLocaleString()"></span>
+          <span x-text="(salary.value - tax - ss.deduction).toLocaleString()"></span>
         </div>
       </div>
       <p class="text-center text-sm text-barley-corn-700 capitalize">

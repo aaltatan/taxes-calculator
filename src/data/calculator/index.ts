@@ -10,30 +10,30 @@ import {
 } from "./constants";
 import type { Calculator } from "./models";
 
-export function calculator(): Calculator {
+export default function calculator(): Calculator {
   return {
-    result: 0,
+    tax: 0,
     salary: {
       value: DEFAULT_SALARY_VALUE,
       min: MIN_SALARY_VALUE,
       brackets: BRACKETS,
-      check(): boolean {
-        return this.value >= this.min;
+      get hasError(): boolean {
+        return this.value < this.min;
       },
     },
     ss: {
-      status: false,
+      joined: false,
       salary: 0,
       min: MIN_SS_SALARY_VALUE,
       rate: DEFAULT_SS_RATE,
-      calculate(): number {
-        if (this.status) {
+      get deduction(): number {
+        if (this.joined) {
           return this.salary * this.rate;
         }
         return 0;
       },
-      check(): boolean {
-        return this.salary >= this.min;
+      get hasError(): boolean {
+        return this.salary < this.min;
       },
     },
     rounder: {
@@ -51,28 +51,24 @@ export function calculator(): Calculator {
       this.ss.salary = this.ss.min;
     },
     reset(): void {
-      this.ss.status = false;
+      this.ss.joined = false;
       this.ss.salary = this.ss.min;
       this.salary.value = this.salary.min;
-      this.result = 0;
+      this.tax = 0;
     },
-    allValid(): boolean {
-      return this.salary.check() && this.ss.check();
+    get hasErrors(): boolean {
+      return this.salary.hasError || this.ss.hasError;
     },
-    calculateTaxableSalary(): number {
-      if (this.ss.status) {
-        return this.salary.value - this.ss.rate * this.ss.salary;
-      }
-      return this.salary.value;
+    get taxableSalary(): number {
+      return this.salary.value - this.ss.deduction;
     },
     calculate(): void {
       let tax = 0;
-      let salary = this.calculateTaxableSalary();
       for (const bracket of this.salary.brackets) {
-        if (bracket.min <= salary && salary <= bracket.max) {
-          let bracketTax = bracket.rate * (salary - bracket.min);
+        if (bracket.min <= this.taxableSalary && this.taxableSalary <= bracket.max) {
+          let bracketTax = bracket.rate * (this.taxableSalary - bracket.min);
           tax += bracketTax;
-          this.result = this.rounder.roundTo(tax);
+          this.tax = this.rounder.roundTo(tax);
           return;
         } else {
           tax += (bracket.max - bracket.min) * bracket.rate;
