@@ -21,7 +21,7 @@
     >
       <div class="flex items-center flex-col">
         <span class="block size-24">
-          <img src="/public/logo.svg" alt="" />
+          <img src="/logo.svg" alt="" />
         </span>
         <h1 class="text-xl font-bold text-center tracking-tighter">ضريبة دخل الرواتب والأجور</h1>
       </div>
@@ -47,6 +47,58 @@
           class="text-red-500"
           x-text="'يجب ان يكون الراتب المقطوع أكبر من ' + salary.min.toLocaleString()"
         ></span>
+      </div>
+      <!--  -->
+      <div>
+        <label for="rounder-status" class="flex items-center gap-2">
+          <span>التقريب</span>
+          <input
+            @change="calculate"
+            type="checkbox"
+            x-model="rounder.status"
+            id="rounder-status"
+            class="accent-timber-green-950 outline-none focus:ring-2 focus:ring-timber-green-950"
+          />
+        </label>
+      </div>
+      <!--  -->
+      <div x-show="rounder.status" x-collapse.duration.150ms class="space-y-2">
+        <div>
+          <label for="rounder-methods">
+            <span class="text-sm font-medium tracking-tighter mb-1 block">نوع التقريب</span>
+            <select
+              x-model="rounder.method"
+              id="rounder-methods"
+              @change="calculate"
+              class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900 aria-[invalid]:border-red-500 aria-[invalid]:ring-red-500"
+            >
+              <template x-for="(methodName, method) in rounder.methods" :key="method">
+                <option
+                  x-text="methodName"
+                  :value="method"
+                  :selected="method === rounder.method"
+                ></option>
+              </template>
+            </select>
+          </label>
+        </div>
+        <!--  -->
+        <div>
+          <label for="rounder-to-nearest" class="[&:has(input[aria-invalid])>span]:text-red-500">
+            <span class="text-sm font-medium tracking-tighter mb-1 block">التقريب الى أقرب</span>
+            <input
+              class="w-full border border-timber-green-950 px-2 py-1 rounded-md outline-none hover:ring-1 hover:ring-timber-green-900 focus:ring-1 focus:ring-timber-green-900 aria-[invalid]:border-red-500 aria-[invalid]:ring-red-500"
+              type="number"
+              @input="calculate"
+              x-model="rounder.toNearest"
+              min="1"
+              step="10"
+              placeholder="e.g. 100"
+              class="w-full"
+              id="rounder-to-nearest"
+            />
+          </label>
+        </div>
       </div>
       <!--  -->
       <div>
