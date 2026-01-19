@@ -35,8 +35,8 @@
             @input="calculate"
             x-model="salary.value"
             :min="salary.min"
-            step="1000"
-            placeholder="e.g. 1,000,000"
+            step="10"
+            placeholder="e.g. 10,000"
             class="w-full"
             id="salary"
           />
@@ -92,8 +92,8 @@
               @input="calculate"
               x-model="rounder.toNearest"
               min="1"
-              step="10"
-              placeholder="e.g. 100"
+              step="1"
+              placeholder="e.g. 1"
               class="w-full"
               id="rounder-to-nearest"
             />
@@ -126,8 +126,8 @@
             x-model="ss.salary"
             :min="ss.min"
             @input="calculate"
-            step="1000"
-            placeholder="e.g. 750,000"
+            step="10"
+            placeholder="e.g. 7,500"
             class="w-full"
             id="social-security-salary"
           />
